@@ -21,6 +21,7 @@
 <canvas id="stage"></canvas>
 <div id="vignette"></div>
 <div id="shockwave"></div>
+<div id="mode-wash"></div>
 <div id="grain"></div>
 
 <!-- ══════════ 載入畫面 ══════════ -->
@@ -30,7 +31,7 @@
   <p class="loader-sub">LIFE INSURANCE TERRAIN THEATER · TAIWAN</p>
   <ul id="load-status"></ul>
   <button id="btn-start" disabled>整備中⋯</button>
-  <p class="loader-hint">桌面或手機皆可・全長 90 秒・可隨時互動探索</p>
+  <p class="loader-hint">桌面或手機皆可・全長 100 秒・可隨時互動探索</p>
 </div>
 
 <!-- ══════════ 序幕標題卡 ══════════ -->
@@ -49,8 +50,15 @@
     <span class="brand-name">臺灣壽險市場地形劇場</span>
   </div>
   <div class="hud-chapter">
-    <span id="chapter-no" class="chapter-no">序</span>
-    <span id="chapter-name" class="chapter-name">開戰前夜</span>
+    <div class="hud-chapter-main">
+      <span id="chapter-no" class="chapter-no">序</span>
+      <span id="chapter-name" class="chapter-name">開戰前夜</span>
+    </div>
+    <!-- 讀法鍵:隨時告訴觀眾此刻「高度」「顏色」各代表什麼;意義改變時對應晶片會閃動 -->
+    <div class="encoding-key" id="encoding-key">
+      <span class="ek" id="ek-h"><i class="ek-dot" id="ek-h-dot"></i>高度&nbsp;<b id="ek-h-val">人口規模</b></span>
+      <span class="ek" id="ek-c"><i class="ek-dot" id="ek-c-dot"></i>顏色&nbsp;<b id="ek-c-val">人口規模</b></span>
+    </div>
   </div>
   <div class="hud-controls">
     <button id="btn-play" class="ctrl" title="播放/暫停(空白鍵)">⏸</button>

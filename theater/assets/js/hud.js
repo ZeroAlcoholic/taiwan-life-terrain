@@ -27,8 +27,10 @@ export class HUD {
       panel: $('county-panel'), cpName: $('cp-name'), cpRows: $('cp-rows'),
       btnPlay: $('btn-play'),
       yearSrc: $('year-src'), chipY: $('chip-young'), chipW: $('chip-work'), chipO: $('chip-old'),
-      shock: $('shockwave'),
+      shock: $('shockwave'), modeWash: $('mode-wash'),
+      ekH: $('ek-h'), ekC: $('ek-c'), ekHDot: $('ek-h-dot'), ekHVal: $('ek-h-val'), ekCDot: $('ek-c-dot'), ekCVal: $('ek-c-val'),
     };
+    this._enc = {};
     this.chartCtx = this.el.chart.getContext('2d');
     this._eventTimer = null;
     this._lastYearShown = null;
@@ -117,6 +119,27 @@ export class HUD {
   shock() {
     const s = this.el.shock;
     s.classList.remove('go'); void s.offsetWidth; s.classList.add('go');
+  }
+
+  // 全圖光掃:意義轉場用。color=光色;strong=高度意義翻轉(較劇烈)
+  wash(color, strong = false) {
+    const w = this.el.modeWash;
+    if (color) w.style.setProperty('--wash', color);
+    w.classList.remove('go', 'go-strong'); void w.offsetWidth;
+    w.classList.add(strong ? 'go-strong' : 'go');
+  }
+
+  // 讀法鍵:hKind 'pop'|'money';cColor=顏色軸代表色。只有「改變的軸」會閃動
+  setEncoding({ hLabel, hKind, cLabel, cColor }) {
+    const prev = this._enc;
+    this.el.ekHVal.textContent = hLabel;
+    this.el.ekCVal.textContent = cLabel;
+    this.el.ekHDot.style.color = hKind === 'money' ? '#f0d878' : '#6fa8c0';
+    if (cColor) this.el.ekCDot.style.color = cColor;
+    const flash = el => { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); };
+    if (prev.hKind !== undefined && prev.hKind !== hKind) flash(this.el.ekH);
+    if (prev.cLabel !== undefined && prev.cLabel !== cLabel) flash(this.el.ekC);
+    this._enc = { hLabel, hKind, cLabel, cColor };
   }
 
   // ── 三段年齡「堆疊帶狀圖」:少子化(下帶縮)與高齡化(上帶漲)一眼可見 ──

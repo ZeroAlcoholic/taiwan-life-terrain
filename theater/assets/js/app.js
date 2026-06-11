@@ -98,7 +98,7 @@ async function loadAll() {
 
   // 控制
   $('btn-play').addEventListener('click', () => director.toggle());
-  const SPEEDS = [1, 1.5, 2];
+  const SPEEDS = [1, 1.5, 2, 4, 0.25, 0.5];
   $('btn-speed').addEventListener('click', e => {
     const i = (SPEEDS.indexOf(director.speed) + 1) % SPEEDS.length;
     director.speed = SPEEDS[i];
