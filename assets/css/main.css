@@ -130,6 +130,9 @@ button { font-family:inherit; cursor:pointer; }
 .caption-body em { color:var(--seiji-hi); font-style:normal; }
 .caption-stat { margin-top:14px; font-family:var(--font-mono); font-size:13px; color:var(--gold); letter-spacing:.05em; line-height:1.9; }
 .caption-stat b { font-size:21px; color:var(--gold-hi); font-weight:700; }
+/* 操作提示:與敘事主文明確區隔(等寬字、灰階、上方分隔線) */
+.caption-hint { margin-top:16px; padding-top:12px; border-top:1px solid rgba(184,174,150,.22);
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; color:var(--paper-dim); line-height:1.6; }
 #caption-box.flash { animation:cap-in .7s ease; }
 @keyframes cap-in { 0%{transform:translateY(-50%) translateX(-14px); opacity:0} 100%{transform:translateY(-50%) translateX(0); opacity:1} }
 
@@ -205,6 +208,24 @@ button { font-family:inherit; cursor:pointer; }
 .county-label.hero .cl-val { font-size:13px; }
 
 /* ═══════════════ 響應式 ═══════════════ */
+
+/* 中型桌面 / 縮放後視窗:收斂兩側資訊塊,避免年份與圖例過大 */
+@media (max-width: 1280px) {
+  #year-num { font-size:52px; }
+  #year-display { top:66px; right:22px; }
+  #caption-box { width:min(330px, 33vw); padding:18px 20px; }
+  .caption-title { font-size:26px; }
+  #legend-box { width:264px; right:22px; bottom:108px; }
+  #age-chips .chip { min-width:118px; }
+}
+
+/* 矮螢幕(含縮放):移除年齡晶片,避免與右下圖例重疊 */
+@media (max-height: 680px) {
+  #year-display { top:60px; }
+  #year-num { font-size:48px; }
+  #age-chips { display:none; }
+  #legend-box { bottom:100px; }
+}
 
 /* 平板 / 小視窗 */
 @media (max-width: 900px) {

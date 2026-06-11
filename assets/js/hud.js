@@ -19,7 +19,7 @@ export class HUD {
       caption: $('caption-box'), legend: $('legend-box'),
       yearNum: $('year-num'), yearEra: $('year-era'), badge: $('data-badge'),
       chNo: $('chapter-no'), chName: $('chapter-name'),
-      capCh: $('caption-chapter'), capTitle: $('caption-title'), capBody: $('caption-body'), capStat: $('caption-stat'),
+      capCh: $('caption-chapter'), capTitle: $('caption-title'), capBody: $('caption-body'), capStat: $('caption-stat'), capHint: $('caption-hint'),
       eventCard: $('event-card'), ecYear: $('ec-year'), ecText: $('ec-text'),
       pips: $('chapter-pips'), tlTrack: $('tl-track'), tlFill: $('tl-fill'), tlCursor: $('tl-cursor'), tlTicks: $('tl-ticks'),
       legendTitle: $('legend-title'), legendScale: $('legend-scale'), legendLabels: $('legend-labels'),
@@ -74,6 +74,8 @@ export class HUD {
     this.el.capTitle.textContent = cap.title || '';
     this.el.capBody.innerHTML = cap.body || '';
     this.el.capStat.innerHTML = cap.stat || '';
+    this.el.capHint.innerHTML = cap.hint || '';
+    this.el.capHint.classList.toggle('hidden', !cap.hint);
     if (!noFlash) {
       this.el.caption.classList.remove('flash');
       void this.el.caption.offsetWidth;

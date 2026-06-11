@@ -24,7 +24,7 @@ export function buildShow(data, util) {
   const maxPop = Math.max(...counties.map(n => Math.max(...(pop.counties[n].total || [0]).filter(v => v != null))));
   const hPop = v => v == null ? 0.05 : Math.sqrt(v / maxPop) * 7.5;
 
-  // ── 1990–2070 三段年齡「合體帶狀資料」(實際+官方中推估) ──
+  // ── 1990–2070 三段年齡「合體帶狀資料」(實際+官方推估) ──
   const projOK = !!proj?.national?.medium;
   const projY1 = projOK ? proj.national.years[proj.national.years.length - 1] : 2070;
   const stackBands = (() => {
@@ -203,7 +203,7 @@ export function buildShow(data, util) {
       {
         at: 12.2, caption: {
           title: '峰頂之後',
-          body: `新客戶<strong>不再自動長出來</strong>。市場從跑馬圈地轉向<em>存量經營</em>。`,
+          body: `新客戶<strong>不再自動長出來</strong>。市場從攻城掠地,轉向<em>深耕既有保戶</em>。`,
           stat: `${natY1} 總人口 <b>${fmtWan(latestTotal)}</b>`
         }
       },
@@ -413,7 +413,7 @@ export function buildShow(data, util) {
   }
   function insGapBody() {
     const cov = ins?.coverageRate?.values?.slice(-1)[0];
-    const covTxt = cov ? `投保率 <strong>${fmt1(cov)}%</strong>(人均 2.6 張保單),` : ``;
+    const covTxt = cov ? `投保率 <strong>${fmt1(cov)}%</strong>(每人 2.6 張保單),` : ``;
     const gapFact = (ins?.facts || []).find(f => f.label.includes('有效契約平均保額'));
     const gapTxt = gapFact ? `但每張有效保單平均保額僅 <strong>${fmtWan(gapFact.value)}</strong>。` : `但平均保額長期偏低。`;
     return covTxt + gapTxt + `<em>缺的不是保單,是厚度。</em>`;
@@ -470,7 +470,7 @@ export function buildShow(data, util) {
       const at = Math.max(1.8, sweepCueAt(m.year, natY1, projY1, 15, 0.68));
       cues.push({
         at, run({ hud, stage }) {
-          hud.event(m.year, m.label + '(官方中推估)');
+          hud.event(m.year, m.label + '(官方推估)');
           hud.shock(); hud.swellChip('old');
           sfx.thud();
           if (i++ === 0) old3.forEach(n => stage.pulse(n, 0xd9333f, 6));
@@ -519,7 +519,7 @@ export function buildShow(data, util) {
       {
         at: 8, caption: {
           title: '戰場三・青壯新城',
-          body: `桃園、臺中——少數仍長出年輕家庭的地方。<strong>定期壽險與健康險的最後增量市場。</strong>`,
+          body: `桃園、臺中——少數仍長出年輕家庭的地方。<strong>定期壽險與健康險,最後一塊成長市場。</strong>`,
           stat: '桃園市・臺中市'
         },
         run({ stage }) { ['桃園市', '臺中市'].forEach(n => { stage.beacon(n, 0x4aa3a2, 15); stage.pulse(n, 0x4aa3a2, 6); }); sfx.thud(); }
@@ -527,8 +527,9 @@ export function buildShow(data, util) {
       {
         at: 11.2, caption: {
           title: '保障的戰場,正在移動',
-          body: `峰已過、家變小、山傾斜。<strong>地圖不會等人</strong>——按 ↺ 重看,或用滑鼠探索每個縣市。`,
-          stat: '完'
+          body: `峰已過、家變小、山傾斜。<strong>地圖不會等人。</strong>`,
+          stat: '完',
+          hint: '↺ 重播　·　拖曳旋轉視角　·　滑入縣市看細節'
         },
         run() { sfx.chime(); }
       },
