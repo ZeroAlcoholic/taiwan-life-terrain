@@ -1,4 +1,4 @@
-// ═══ script.js — 演出劇本:七幕戰情敘事(緊湊版,全長 90 秒) ═══
+// ═══ script.js — 演出劇本:七幕戰情敘事(全長 100 秒) ═══
 // 所有數字一律取自 data/*.json(官方資料);情境推演段落由此檔計算並明確標示。
 import { seriesAt, colorRamp } from './director.js';
 import { fmt, fmt1, fmtWan } from './hud.js';
@@ -127,7 +127,7 @@ export function buildShow(data, util) {
   const SRC_DGBAS = `主計總處家庭收支調查(${inc?.meta?.year ?? 2024})`;
   const SRC_LIA = `壽險公會・保發中心(2024–25)`;
 
-  // ════════════════ 章節(全長 90 秒) ════════════════
+  // ════════════════ 章節(全長 100 秒) ════════════════
   const chapters = [];
 
   // ── 序章 8s ──
@@ -147,7 +147,7 @@ export function buildShow(data, util) {
       {
         at: 5.2, caption: {
           title: '一張會說話的地圖',
-          body: `島上 <strong>${fmtWan(latestTotal)}</strong> 人。<em>高度是人口、顏色是結構</em>——90 秒,看清壽險的新戰場。`,
+          body: `島上 <strong>${fmtWan(latestTotal)}</strong> 人。<em>高度是人口、顏色是結構</em>——100 秒,看清壽險的新戰場。`,
           stat: ''
         }
       },
@@ -350,7 +350,7 @@ export function buildShow(data, util) {
   // ── 第四章 財富山脈 13s ──
   const maxInc = inc?.counties ? Math.max(...Object.values(inc.counties).map(c => c.dispIncomeHH || 0)) : 1;
   chapters.push({
-    no: '第四章', name: '財富山脈', dur: 13,
+    no: '第四章', name: '財富山脈', dur: 14,
     camera: [
       { t: 0, pos: [18, 22, 38], tgt: [2, 1, -3] },
       { t: 0.45, pos: [26, 20, -30], tgt: [5, 2, -13] },
@@ -367,16 +367,22 @@ export function buildShow(data, util) {
           title: '把地圖換成錢的形狀',
           body: `<em>高度=每戶可支配所得</em>。山瞬間搬家——<strong>臺北、新竹</strong>拔地而起,剛才最紅的高齡縣塌成谷地。`,
           stat: incTopStat()
+        },
+        // 編碼轉折:高度由「人口」改為「所得」,以衝擊紅光+金色脈衝點出地圖重塑
+        run({ stage, hud }) {
+          hud.shock();
+          ['臺北市', '新竹市', '新竹縣'].forEach(n => stage.pulse(n, 0xf0d878, 6));
+          sfx.thud();
         }
       },
       {
-        at: 4.2, run({ stage }) {
+        at: 4.4, run({ stage }) {
           ['臺北市', '新竹市', '新竹縣'].forEach(n => stage.beacon(n, 0xf0d878, 16));
           sfx.thud();
         }
       },
       {
-        at: 6.4, caption: {
+        at: 7.6, caption: {
           title: '保單很多,保障很薄',
           body: insGapBody(),
           stat: insGapStat()
@@ -425,7 +431,7 @@ export function buildShow(data, util) {
 
   // ── 第五章 未來推演 2070 15s ──
   chapters.push({
-    no: '第五章', name: '未來推演 2070', dur: 15,
+    no: '第五章', name: '未來推演 2070', dur: 19,
     camera: [
       { t: 0, pos: [-14, 32, 42], tgt: [-2, 0, 1] },
       { t: 0.45, pos: [26, 28, 32], tgt: [0, 0, -2] },
@@ -435,15 +441,17 @@ export function buildShow(data, util) {
     enter({ hud }) { setLegendAge(hud); hud.setSource(SRC_NDC); sfx.chime(); },
     cues: [
       {
-        at: 0.3, caption: {
+        at: 0.4, caption: {
           title: '把時鐘撥快 45 年',
           body: `<em>國發會中推估</em> + <strong>本劇場縣市情境模擬</strong>(紅徽章=推演,不是事實)。看著工作年齡的金色地帶被紅色吞沒。`,
           stat: `${natY1} → ${projY1}`
-        }
+        },
+        // 編碼轉折:由「實際」跨入「推演」,以衝擊紅光點出時間軸越界
+        run({ hud }) { hud.shock(); sfx.thud(); }
       },
       ...projMilestoneCues(),
       {
-        at: 11.6, caption: {
+        at: 15.5, caption: {
           title: '產品結構還停在昨天',
           body: mixBody(),
           stat: mixStat()
@@ -463,11 +471,12 @@ export function buildShow(data, util) {
   function projMilestoneCues() {
     const cues = [];
     let i = 0;
-    const prefer = [2028, 2039, 2050, 2070];
+    // 19 秒章節:取三個間距夠寬的里程碑,讓每則戰報都看得清楚、不互相打斷
+    const prefer = [2028, 2050, 2070];
     const pool = milestones.filter(m => m.year > natY1);
     const picked = prefer.map(y => pool.find(m => m.year === y)).filter(Boolean);
-    for (const m of (picked.length >= 3 ? picked : pool.slice(0, 4))) {
-      const at = Math.max(1.8, sweepCueAt(m.year, natY1, projY1, 15, 0.68));
+    for (const m of (picked.length >= 3 ? picked : pool.slice(0, 3))) {
+      const at = Math.max(2.4, sweepCueAt(m.year, natY1, projY1, 19, 0.68));
       cues.push({
         at, run({ hud, stage }) {
           hud.event(m.year, m.label + '(官方推估)');
@@ -492,7 +501,7 @@ export function buildShow(data, util) {
 
   // ── 終章 三大戰場 13s ──
   chapters.push({
-    no: '終章', name: '三大戰場', dur: 13,
+    no: '終章', name: '三大戰場', dur: 18,
     camera: [
       { t: 0, pos: [4, 52, 50], tgt: [0, 0, -3] },
       { t: 0.6, pos: [18, 36, 42], tgt: [0, 0, -3] },
@@ -501,7 +510,7 @@ export function buildShow(data, util) {
     enter({ hud }) { setLegendAge(hud); hud.setSource(`${SRC_RIS}・${SRC_LIA}`); sfx.chime(); },
     cues: [
       {
-        at: 0.4, caption: {
+        at: 0.5, caption: {
           title: '戰場一・高齡鄉縣',
           body: `<strong>長照、醫療、小額終老</strong>。通路走進診所與農會,不是商辦大樓。`,
           stat: ruralOld3.join('・')
@@ -509,7 +518,7 @@ export function buildShow(data, util) {
         run({ stage }) { ruralOld3.forEach(n => { stage.beacon(n, 0xd9333f, 15); stage.pulse(n, 0xd9333f, 6); }); sfx.thud(); }
       },
       {
-        at: 4.2, caption: {
+        at: 5, caption: {
           title: '戰場二・財富高峰',
           body: `<strong>最老又最富的臺北</strong>+新竹走廊——<strong>退休理財、利變壽險、資產傳承</strong>。客戶不缺錢,缺終身現金流。`,
           stat: '臺北市・新竹市・新竹縣'
@@ -517,7 +526,7 @@ export function buildShow(data, util) {
         run({ stage }) { ['臺北市', '新竹市', '新竹縣'].forEach(n => { stage.beacon(n, 0xf0d878, 16); stage.pulse(n, 0xc9a227, 6); }); sfx.thud(); }
       },
       {
-        at: 8, caption: {
+        at: 9.5, caption: {
           title: '戰場三・青壯新城',
           body: `桃園、臺中——少數仍長出年輕家庭的地方。<strong>定期壽險與健康險,最後一塊成長市場。</strong>`,
           stat: '桃園市・臺中市'
@@ -525,13 +534,19 @@ export function buildShow(data, util) {
         run({ stage }) { ['桃園市', '臺中市'].forEach(n => { stage.beacon(n, 0x4aa3a2, 15); stage.pulse(n, 0x4aa3a2, 6); }); sfx.thud(); }
       },
       {
-        at: 11.2, caption: {
+        at: 14, caption: {
           title: '保障的戰場,正在移動',
           body: `峰已過、家變小、山傾斜。<strong>地圖不會等人。</strong>`,
           stat: '完',
           hint: '↺ 重播　·　拖曳旋轉視角　·　滑入縣市看細節'
         },
-        run() { sfx.chime(); }
+        // 終局合奏:三大戰場同時亮起,把全片論點收束成一張地圖
+        run({ stage }) {
+          ruralOld3.forEach(n => stage.beacon(n, 0xd9333f, 15));
+          ['臺北市', '新竹市', '新竹縣'].forEach(n => stage.beacon(n, 0xf0d878, 16));
+          ['桃園市', '臺中市'].forEach(n => stage.beacon(n, 0x4aa3a2, 15));
+          sfx.chime();
+        }
       },
     ],
     tick(localT, p, { stage, hud }) {
