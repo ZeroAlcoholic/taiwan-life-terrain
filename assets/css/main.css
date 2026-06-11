@@ -204,8 +204,76 @@ button { font-family:inherit; cursor:pointer; }
 .county-label.hero .cl-name { font-size:16px; color:var(--gold-hi); }
 .county-label.hero .cl-val { font-size:13px; }
 
+/* ═══════════════ 響應式 ═══════════════ */
+
+/* 平板 / 小視窗 */
 @media (max-width: 900px) {
-  #caption-box { width:min(320px, 78vw); top:auto; bottom:150px; transform:none; }
-  #legend-box { display:none; }
+  #hud-top { padding:10px 16px; }
   .brand-name { display:none; }
+  .chapter-name { font-size:14px; letter-spacing:.2em; }
+  #year-display { top:60px; right:16px; }
+  #year-num { font-size:40px; }
+  #age-chips .chip { min-width:108px; }
+  #caption-box { left:16px; right:16px; width:auto; max-width:420px;
+    top:auto; bottom:140px; transform:none; }
+  #caption-box.flash { animation:none; }
+  #legend-box { display:none; }
+  #event-card .ec-text { font-size:16px; max-width:280px; }
+}
+
+/* 手機(直立) */
+@media (max-width: 600px) {
+  #hud-top { padding:8px 12px; }
+  .brand-crest { width:28px; height:28px; font-size:14px; }
+  .chapter-no { font-size:12px; padding:3px 7px; }
+  .chapter-name { font-size:12px; letter-spacing:.12em; }
+  .hud-controls { gap:5px; }
+  .ctrl { width:32px; height:32px; font-size:13px; }
+
+  #year-display { top:50px; right:12px; }
+  #year-num { font-size:28px; }
+  #year-era { font-size:10px; margin-top:3px; }
+  .badge { font-size:9px; padding:2px 6px; margin-top:6px; letter-spacing:.15em; }
+  #year-src { font-size:9px; margin-top:3px; }
+  #age-chips { gap:4px; margin-top:8px; }
+  #age-chips .chip { min-width:90px; padding:2px 7px; }
+  #age-chips .chip-k { font-size:9px; }
+  #age-chips b { font-size:13px; }
+
+  #caption-box { left:10px; right:10px; max-width:none; bottom:124px;
+    padding:12px 14px; border-left-width:2px; }
+  .caption-chapter { font-size:10px; letter-spacing:.3em; margin-bottom:6px; }
+  .caption-title { font-size:18px; margin-bottom:8px; line-height:1.35; }
+  .caption-body { font-size:13px; line-height:1.8; }
+  .caption-stat { font-size:11px; margin-top:10px; }
+  .caption-stat b { font-size:17px; }
+
+  #event-card { top:16%; padding:10px 16px 10px 10px; gap:10px; }
+  .ec-flag { font-size:12px; padding:7px 4px; }
+  .ec-year { font-size:24px; }
+  .ec-text { font-size:14px; max-width:200px; }
+
+  #county-panel { min-width:160px; padding:10px 12px; }
+  #county-panel h3 { font-size:16px; }
+  #cp-rows { font-size:11px; line-height:1.85; }
+
+  #hud-bottom { padding:8px 12px 10px; }
+  #chapter-pips { gap:5px; margin-bottom:6px; }
+  .pip { font-size:10px; padding:3px 8px; letter-spacing:.1em; }
+  #foot-src { display:none; }
+  #hud-foot-note .badge { font-size:9px; }
+  #tl-ticks { font-size:9px; }
+
+  .county-label .cl-name { font-size:11px; }
+  .county-label .cl-val { font-size:9.5px; }
+  .county-label.hero .cl-name { font-size:13px; }
+}
+
+/* 矮螢幕(手機橫放) */
+@media (max-height: 480px) {
+  #year-display { top:46px; }
+  #year-num { font-size:28px; }
+  #age-chips { display:none; }
+  #caption-box { bottom:90px; padding:10px 14px; }
+  .caption-body { font-size:12px; line-height:1.6; }
 }

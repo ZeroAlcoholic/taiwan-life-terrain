@@ -26,7 +26,7 @@ class SFX {
     o.type = 'sine';
     o.frequency.setValueAtTime(120, t);
     o.frequency.exponentialRampToValueAtTime(38, t + 0.25);
-    this._env(o, t, 0.005, 0.5, 0.5);
+    this._env(o, t, 0.005, 0.5, 0.22);
     o.start(t); o.stop(t + 0.6);
   }
   chime() { // 章節:鐘
@@ -36,7 +36,7 @@ class SFX {
       const o = ac.createOscillator();
       o.type = 'triangle';
       o.frequency.value = f;
-      this._env(o, t + i * 0.07, 0.01, 1.4, 0.12);
+      this._env(o, t + i * 0.07, 0.01, 1.4, 0.055);
       o.start(t + i * 0.07); o.stop(t + 2);
     });
   }
@@ -137,8 +137,8 @@ async function loadAll() {
   btn.disabled = false;
   btn.textContent = '開 演';
   btn.addEventListener('click', () => {
-    sfx.enable(); sfx.on = true;
-    $('btn-sound').classList.add('active');
+    // 音效預設關閉(♪ 鈕可開啟);先建立 AudioContext 以便之後開啟時免再次互動
+    sfx._ac();
     $('loader').classList.add('hidden');
     setTimeout(() => $('loader').remove(), 1300);
     hud.showAll();
