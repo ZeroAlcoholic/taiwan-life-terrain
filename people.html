@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人口生命劇場｜如果臺灣是 100 個人</title>
+<meta name="description" content="以官方公開資料,把臺灣人口結構化為 100 個站在島上的人 — 少子、高齡、家庭變小、扶老變重,3D 同理式資料敘事。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='29' fill='%2307060c' stroke='%23f2c14e' stroke-width='3'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle'%3E%F0%9F%95%AF%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-webfont/style.css">
+<link rel="stylesheet" href="people/people.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/controls/OrbitControls.js": "./vendor/OrbitControls.js" } }
+</script>
+</head>
+<body>
+
+<!-- 3D 舞台 -->
+<canvas id="p-stage"></canvas>
+<div id="p-vignette"></div>
+
+<!-- 載入畫面 -->
+<div id="p-loader">
+  <div class="p-loader-flame">🧍</div>
+  <h1 class="p-loader-title">如果臺灣是 100 個人</h1>
+  <p class="p-loader-sub">IF TAIWAN WERE 100 PEOPLE · 人口生命劇場</p>
+  <ul id="p-load-status"></ul>
+  <button id="p-btn-start" disabled>整備中⋯</button>
+  <p class="p-loader-hint">桌面或手機皆可・全長約 95 秒・可隨時互動探索</p>
+</div>
+
+<!-- 序幕標題卡 -->
+<div id="p-titlecard" class="hidden">
+  <div class="tc-rule"></div>
+  <p class="tc-kicker">官方公開資料 × 同理式敘事</p>
+  <h1 class="tc-title">如果臺灣,<br>是 100 個人</h1>
+  <p class="tc-sub">孩子變少、長者變多、家越來越小——<br>讓這座島的人口,化成一群人,被看見、被感受。</p>
+  <div class="tc-rule"></div>
+</div>
+
+<!-- HUD 頂部 -->
+<header id="p-hud-top" class="hud hidden">
+  <div class="p-brand">
+    <span class="p-brand-flame">🧍</span>
+    <span class="p-brand-name">如果臺灣是 100 個人</span>
+  </div>
+  <div class="p-chapter">
+    <span id="p-chapter-no" class="p-chapter-no">序</span>
+    <span id="p-chapter-name" class="p-chapter-name">一座島的燈火</span>
+  </div>
+  <div class="p-controls">
+    <button id="p-btn-play" class="p-ctrl" title="播放/暫停（空白鍵）">❚❚</button>
+    <button id="p-btn-speed" class="p-ctrl" title="播放倍速">1×</button>
+    <button id="p-btn-replay" class="p-ctrl" title="重新播放">↺</button>
+    <button id="p-btn-cam" class="p-ctrl active" title="自動運鏡開關">🎥</button>
+    <button id="p-btn-sound" class="p-ctrl" title="音效開關">♪</button>
+  </div>
+</header>
+
+<!-- 年份大字 -->
+<div id="p-year-display" class="hud hidden">
+  <span id="p-year-num">1990</span>
+  <span id="p-year-era">民國 79 年</span>
+  <span id="p-data-badge" class="p-badge b-actual">實際資料</span>
+  <span id="p-year-src">內政部戶政司｜實際資料</span>
+  <span id="p-year-sub"></span>
+</div>
+
+<!-- 左下:敘事字卡 -->
+<aside id="p-caption" class="hud hidden">
+  <div class="p-cap-chapter" id="p-cap-chapter">序・一座島的燈火</div>
+  <h2 class="p-cap-title" id="p-cap-title"></h2>
+  <p class="p-cap-body" id="p-cap-body"></p>
+  <div class="p-cap-stat hidden" id="p-cap-stat"></div>
+  <p class="p-cap-hint hidden" id="p-cap-hint"></p>
+</aside>
+
+<!-- 右側:世代圖例 + 堆疊圖 -->
+<aside id="p-legend" class="hud hidden">
+  <div class="p-legend-title" id="p-legend-title">世代結構</div>
+  <div id="p-legend-bars"></div>
+  <canvas id="p-stack" width="280" height="118"></canvas>
+  <div class="p-stack-caption" id="p-stack-caption"></div>
+</aside>
+
+<!-- 縣市面板 -->
+<div id="p-county-panel" class="hidden">
+  <h3 id="p-cp-name"></h3>
+  <div id="p-cp-rows"></div>
+</div>
+
+<!-- 底部:章節 + 時間軸 -->
+<footer id="p-hud-bottom" class="hud hidden">
+  <div id="p-pips"></div>
+  <div id="p-timeline">
+    <div id="p-tl-track"><div id="p-tl-fill"></div><div id="p-tl-cursor"></div></div>
+    <div id="p-tl-ticks"></div>
+  </div>
+  <div id="p-foot">
+    <span class="p-badge b-actual">實際資料</span>
+    <span class="p-badge b-proj">官方推估</span>
+    <span id="p-foot-src">資料:內政部戶政司・國發會人口推估・主計總處家庭收支調查</span>
+    <button id="p-btn-sources" class="p-link-btn">資料來源</button>
+  </div>
+</footer>
+
+<!-- 結束畫面 -->
+<div id="p-end" class="hidden">
+  <h2>同一群人,換了一副面孔</h2>
+  <p>當前排的孩子退場、後排的長者站滿——<br>「保障」與「照護」的意義,<br>也跟著這支隊伍,被重新改寫。</p>
+  <button id="p-end-replay">再看一次</button>
+</div>
+
+<!-- 資料來源 modal -->
+<div id="p-sources-modal" class="hidden">
+  <div class="p-sm-inner">
+    <button id="p-sm-close">✕</button>
+    <h2>資料來源</h2>
+    <div id="p-sm-body"></div>
+  </div>
+</div>
+
+<script type="module" src="people/people.js"></script>
+</body>
+</html>

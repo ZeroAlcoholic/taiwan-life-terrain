@@ -1,0 +1,226 @@
+/* ═══ people/people.css — 人口生命劇場:溫暖燈火視覺語言 ═══ */
+:root {
+  --ink: #f4eee6;
+  --ink-dim: #b8aebf;
+  --young: #69d6a0;
+  --work: #f2c14e;
+  --old: #e8728c;
+  --proj: #8aa0c0;
+  --bg: #0a0a14;
+  --panel: rgba(18, 16, 28, 0.72);
+  --line: rgba(180, 160, 200, 0.18);
+  --serif: "Noto Serif TC", "LXGW WenKai TC", serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--ink); font-family: var(--serif); }
+
+#p-stage { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+
+/* 暈影 */
+#p-vignette {
+  position: fixed; inset: 0; pointer-events: none; z-index: 2;
+  background: radial-gradient(ellipse 120% 90% at 50% 42%, transparent 52%, rgba(5, 4, 10, 0.62) 100%);
+}
+
+.hidden { display: none !important; }
+
+/* ── 載入畫面 ── */
+#p-loader {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 38%, #16121f 0%, #07060c 70%);
+  transition: opacity 1s ease; gap: 6px; text-align: center; padding: 24px;
+}
+#p-loader.hidden { display: flex !important; opacity: 0; pointer-events: none; }
+.p-loader-flame { font-size: 52px; line-height: 1; filter: drop-shadow(0 0 22px rgba(242, 193, 78, 0.7)); animation: flicker 2.6s ease-in-out infinite; }
+@keyframes flicker { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.82; transform: scale(0.97); } }
+.p-loader-title { font-size: clamp(28px, 6vw, 46px); font-weight: 900; letter-spacing: 0.1em; margin-top: 10px; }
+.p-loader-sub { font-family: var(--mono); font-size: 11px; letter-spacing: 0.32em; color: var(--ink-dim); margin-bottom: 14px; }
+#p-load-status { list-style: none; font-family: var(--mono); font-size: 11.5px; color: var(--ink-dim); line-height: 1.9; min-height: 90px; }
+#p-load-status li::before { content: "○ "; }
+#p-load-status li.ok { color: var(--young); } #p-load-status li.ok::before { content: "● "; }
+#p-load-status li.wait { opacity: 0.5; }
+#p-load-status li.err { color: var(--old); } #p-load-status li.err::before { content: "✕ "; }
+#p-btn-start {
+  margin-top: 18px; padding: 13px 44px; font-family: var(--serif); font-size: 19px; font-weight: 700;
+  letter-spacing: 0.3em; color: #1a140a; background: linear-gradient(120deg, #f2c14e, #ffe1a0);
+  border: none; border-radius: 4px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 30px rgba(242, 193, 78, 0.4);
+}
+#p-btn-start:disabled { background: #2a2535; color: #6b6478; cursor: default; box-shadow: none; letter-spacing: 0.1em; }
+#p-btn-start:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 6px 40px rgba(242, 193, 78, 0.6); }
+.p-loader-hint { margin-top: 14px; font-size: 12px; color: var(--ink-dim); opacity: 0.7; }
+
+/* ── 標題卡 ── */
+#p-titlecard {
+  position: fixed; inset: 0; z-index: 8; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, rgba(7, 6, 12, 0.4), transparent 60%);
+  animation: tcIn 1.2s ease;
+}
+@keyframes tcIn { from { opacity: 0; } to { opacity: 1; } }
+.tc-rule { width: 64px; height: 2px; background: linear-gradient(90deg, transparent, var(--work), transparent); margin: 14px 0; }
+.tc-kicker { font-family: var(--mono); font-size: 12px; letter-spacing: 0.4em; color: var(--work); }
+.tc-title { font-size: clamp(30px, 7vw, 60px); font-weight: 900; letter-spacing: 0.08em; text-shadow: 0 4px 40px rgba(0, 0, 0, 0.7); }
+.tc-sub { font-size: clamp(14px, 2.6vw, 20px); color: var(--ink-dim); line-height: 1.8; margin-top: 8px; }
+
+/* ── HUD 通用 ── */
+.hud { position: fixed; z-index: 6; }
+
+#p-hud-top {
+  top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 22px; gap: 14px;
+  background: linear-gradient(180deg, rgba(7, 6, 12, 0.78), transparent);
+}
+.p-brand { display: flex; align-items: center; gap: 10px; }
+.p-brand-flame { font-size: 22px; filter: drop-shadow(0 0 10px rgba(242, 193, 78, 0.6)); }
+.p-brand-name { font-weight: 700; font-size: 16px; letter-spacing: 0.06em; }
+.p-chapter { display: flex; align-items: baseline; gap: 8px; }
+.p-chapter-no {
+  font-family: var(--serif); font-size: 15px; font-weight: 900; color: #1a140a;
+  background: var(--work); width: 26px; height: 26px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.p-chapter-name { font-size: 17px; font-weight: 700; letter-spacing: 0.08em; }
+.p-controls { display: flex; gap: 7px; }
+.p-ctrl {
+  width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line);
+  background: rgba(20, 16, 28, 0.6); color: var(--ink); font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: 0.18s; font-family: var(--mono);
+}
+.p-ctrl:hover { border-color: var(--work); color: var(--work); }
+.p-ctrl.active { border-color: var(--work); color: var(--work); box-shadow: 0 0 14px rgba(242, 193, 78, 0.3); }
+
+/* ── 年份大字 ── */
+#p-year-display {
+  top: 64px; left: 22px; display: flex; flex-direction: column; gap: 2px; pointer-events: none;
+}
+#p-year-num { font-family: var(--mono); font-size: clamp(46px, 8vw, 84px); font-weight: 700; line-height: 0.95; letter-spacing: 0.02em; text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7); }
+#p-year-era { font-size: 13px; color: var(--ink-dim); letter-spacing: 0.2em; }
+.p-badge {
+  display: inline-block; width: fit-content; margin-top: 6px; padding: 3px 12px; border-radius: 3px;
+  font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.15em;
+}
+.p-badge.b-actual { background: rgba(242, 193, 78, 0.18); color: var(--work); border: 1px solid rgba(242, 193, 78, 0.5); }
+.p-badge.b-proj { background: rgba(138, 160, 192, 0.18); color: var(--proj); border: 1px solid rgba(138, 160, 192, 0.6); }
+#p-year-src { font-family: var(--mono); font-size: 10.5px; color: var(--ink-dim); opacity: 0.7; margin-top: 5px; }
+#p-year-sub { font-size: 12.5px; color: var(--ink); margin-top: 6px; max-width: 320px; line-height: 1.5; text-shadow: 0 1px 6px #000; }
+
+/* ── 左下:敘事字卡 ── */
+#p-caption {
+  bottom: 110px; left: 22px; max-width: 360px; padding: 16px 18px;
+  background: var(--panel); backdrop-filter: blur(12px); border: 1px solid var(--line);
+  border-left: 3px solid var(--work); border-radius: 4px;
+}
+#p-caption.flash { animation: capFlash 0.6s ease; }
+@keyframes capFlash { from { transform: translateX(-8px); opacity: 0.3; } to { transform: translateX(0); opacity: 1; } }
+.p-cap-chapter { font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; color: var(--work); margin-bottom: 6px; }
+.p-cap-title { font-size: 21px; font-weight: 900; line-height: 1.3; margin-bottom: 8px; }
+.p-cap-body { font-size: 14.5px; line-height: 1.75; color: var(--ink); }
+.p-cap-body b { font-weight: 700; }
+.p-cap-stat { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--ink-dim); line-height: 1.6; }
+.p-cap-hint { margin-top: 9px; font-size: 11.5px; color: var(--proj); opacity: 0.85; }
+
+/* ── 右側:世代圖例 + 堆疊圖 ── */
+#p-legend {
+  top: 64px; right: 22px; width: 270px; padding: 14px 16px;
+  background: var(--panel); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: 4px;
+}
+.p-legend-title { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 10px; color: var(--ink-dim); }
+.p-leg-row { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 13px; }
+.p-leg-dot { width: 12px; height: 12px; border-radius: 3px; flex: none; box-shadow: 0 0 8px currentColor; }
+.p-leg-k { flex: 1; }
+.p-leg-v { font-family: var(--mono); font-weight: 700; }
+#p-stack { width: 100%; height: auto; margin-top: 12px; display: block; border-radius: 3px; background: rgba(7, 6, 12, 0.5); }
+.p-stack-caption { font-family: var(--mono); font-size: 10.5px; color: var(--ink-dim); margin-top: 6px; line-height: 1.5; }
+
+/* ── 縣市標籤 ── */
+.p-label {
+  position: fixed; transform: translate(-50%, -120%); pointer-events: none; z-index: 5;
+  text-align: center; transition: opacity 0.3s; white-space: nowrap;
+}
+.p-label .pl-name { display: block; font-size: 13px; font-weight: 700; text-shadow: 0 1px 6px #000; }
+.p-label .pl-val { display: block; font-family: var(--mono); font-size: 11px; color: var(--work); }
+.p-label.hero .pl-name { font-size: 16px; }
+.p-label.hero { filter: drop-shadow(0 0 8px rgba(242, 193, 78, 0.5)); }
+
+/* ── 縣市面板 ── */
+#p-county-panel {
+  position: fixed; z-index: 9; min-width: 190px; padding: 12px 14px;
+  background: var(--panel); backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 5px;
+  pointer-events: none; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+#p-cp-name { font-size: 16px; font-weight: 900; margin-bottom: 8px; }
+.p-cp-row { display: flex; justify-content: space-between; gap: 16px; font-size: 12.5px; margin: 4px 0; }
+.p-cp-row span { color: var(--ink-dim); }
+.p-cp-row b { font-family: var(--mono); }
+
+/* ── 底部:章節 + 時間軸 ── */
+#p-hud-bottom {
+  bottom: 0; left: 0; right: 0; padding: 8px 22px 14px;
+  background: linear-gradient(0deg, rgba(7, 6, 12, 0.85), transparent);
+}
+#p-pips { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.p-pip {
+  display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 14px;
+  background: rgba(20, 16, 28, 0.6); border: 1px solid var(--line); color: var(--ink-dim);
+  font-family: var(--serif); font-size: 12px; cursor: pointer; transition: 0.18s;
+}
+.p-pip:hover { border-color: var(--work); color: var(--ink); }
+.p-pip.active { background: rgba(242, 193, 78, 0.18); border-color: var(--work); color: var(--work); }
+.p-pip-no { font-weight: 900; }
+#p-timeline { position: relative; }
+#p-tl-track { position: relative; height: 6px; background: rgba(180, 160, 200, 0.16); border-radius: 3px; cursor: pointer; }
+#p-tl-fill { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, var(--young), var(--work), var(--old)); border-radius: 3px; }
+#p-tl-cursor { position: absolute; top: 50%; width: 13px; height: 13px; border-radius: 50%; background: #fff; transform: translate(-50%, -50%); box-shadow: 0 0 10px rgba(255, 255, 255, 0.7); }
+#p-tl-ticks { position: relative; height: 0; }
+.p-tick { position: absolute; top: -6px; width: 1px; height: 6px; background: rgba(255, 255, 255, 0.3); }
+#p-foot { display: flex; align-items: center; gap: 10px; margin-top: 9px; flex-wrap: wrap; font-size: 11px; color: var(--ink-dim); }
+#p-foot .p-badge { font-size: 10px; padding: 2px 8px; }
+#p-foot-src { font-family: var(--mono); opacity: 0.7; }
+.p-link-btn { background: none; border: 1px solid var(--line); color: var(--ink-dim); padding: 3px 10px; border-radius: 3px; font-size: 11px; cursor: pointer; font-family: var(--serif); }
+.p-link-btn:hover { color: var(--work); border-color: var(--work); }
+
+/* ── 結束畫面 ── */
+#p-end {
+  position: fixed; inset: 0; z-index: 12; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; gap: 14px;
+  background: radial-gradient(ellipse at 50% 45%, rgba(12, 10, 20, 0.85), rgba(5, 4, 10, 0.92));
+  animation: tcIn 0.8s ease;
+}
+#p-end h2 { font-size: clamp(24px, 5vw, 38px); font-weight: 900; }
+#p-end p { font-size: 15px; color: var(--ink-dim); line-height: 1.8; max-width: 460px; }
+#p-end-replay { margin-top: 10px; padding: 11px 34px; font-family: var(--serif); font-size: 16px; font-weight: 700; letter-spacing: 0.2em; color: #1a140a; background: linear-gradient(120deg, #f2c14e, #ffe1a0); border: none; border-radius: 4px; cursor: pointer; }
+
+/* ── 資料來源 modal ── */
+#p-sources-modal { position: fixed; inset: 0; z-index: 30; background: rgba(5, 4, 10, 0.8); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.p-sm-inner { position: relative; max-width: 560px; max-height: 80vh; overflow-y: auto; padding: 28px 30px; background: #14101c; border: 1px solid var(--line); border-radius: 8px; }
+.p-sm-inner h2 { font-size: 22px; margin-bottom: 16px; }
+#p-sm-close { position: absolute; top: 14px; right: 16px; background: none; border: none; color: var(--ink-dim); font-size: 20px; cursor: pointer; }
+.sm-block { font-size: 13.5px; line-height: 1.7; margin-bottom: 14px; color: var(--ink); }
+.sm-block b { color: var(--work); }
+.sm-note { font-size: 12px; color: var(--ink-dim); line-height: 1.7; padding-top: 12px; border-top: 1px solid var(--line); }
+
+/* ── 響應式:手機 ── */
+@media (max-width: 768px) {
+  #p-hud-top { padding: 10px 14px; flex-wrap: wrap; gap: 8px; }
+  .p-brand-name { font-size: 14px; }
+  .p-chapter-name { font-size: 14px; }
+  .p-ctrl { width: 34px; height: 34px; font-size: 13px; }
+  #p-year-display { top: 92px; left: 14px; }
+  #p-year-num { font-size: 44px; }
+  #p-legend { display: none; }
+  #p-caption { left: 12px; right: 12px; bottom: 130px; max-width: none; padding: 12px 14px; }
+  .p-cap-title { font-size: 17px; }
+  .p-cap-body { font-size: 13px; }
+  #p-pips { gap: 4px; }
+  .p-pip { padding: 3px 7px; font-size: 11px; }
+  .p-pip-nm { display: none; }
+  #p-foot-src { display: none; }
+}
+@media (max-height: 560px) {
+  #p-caption { bottom: 96px; padding: 10px 12px; }
+  .p-cap-stat { display: none; }
+}
