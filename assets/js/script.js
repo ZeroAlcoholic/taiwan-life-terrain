@@ -6,6 +6,7 @@ import { fmt, fmt1, fmtWan } from './hud.js';
 const RAMP_TERRAIN = ['#1d2935', '#31506b', '#3f6e6d', '#c9a227', '#f0d878']; // 人口地形
 const RAMP_AGE     = ['#27414e', '#4aa3a2', '#c9a227', '#d9333f', '#8c1620']; // 高齡
 const RAMP_GOLD    = ['#222b35', '#5d5a35', '#c9a227', '#ffe9a0'];            // 財富
+const RAMP_GOLD_EMIT = ['#000000', '#241a02', '#4e3c07', '#7a5e10'];         // 財富自發光(高度=錢時讓山峰發金光,與人口地形區隔)
 const RAMP_HOME    = ['#d9333f', '#c9a227', '#4aa3a2', '#27414e'];            // 戶量(小→紅)
 
 export function buildShow(data, util) {
@@ -224,9 +225,12 @@ export function buildShow(data, util) {
     no: '第二章', name: '高齡前線', dur: 15,
     camera: [
       { t: 0, pos: [14, 30, -40], tgt: [4, 1, -13] },
-      { t: 0.4, pos: [-28, 26, 28], tgt: [-4, 0, 2] },
-      { t: 0.75, pos: [-22, 18, 20], tgt: [-7, 1, 3] },
-      { t: 1, pos: [6, 38, 42], tgt: [0, 0, -2] },
+      { t: 0.34, pos: [-28, 26, 28], tgt: [-4, 0, 2] },   // 掃過中南部由青轉紅
+      { t: 0.56, pos: [-4, 24, 12], tgt: [3, 2, -9] },     // 轉身北上,朝首都推進
+      // 「最老的竟是首都」字卡(p≈0.69):空照臺北,高角度俯瞰深紅色頂面,避免被自身高度遮擋
+      { t: 0.70, pos: [6.5, 33, -7], tgt: [6.1, 2, -15.3] },
+      { t: 0.84, pos: [9, 31, -3], tgt: [6.4, 2, -15] },   // 短暫定格首都
+      { t: 1, pos: [6, 38, 42], tgt: [0, 0, -2] },          // 拉回全島
     ],
     enter({ hud }) { setLegendAge(hud); hud.setSource(SRC_RIS); sfx.chime(); },
     cues: [
@@ -392,9 +396,11 @@ export function buildShow(data, util) {
     tick(localT, p, { stage, hud }) {
       for (const n of counties) {
         const v = inc?.counties?.[n]?.dispIncomeHH;
+        // 高度=錢:山峰自發金光(emissive),與人口/高齡地形的霧面材質明確區隔
         stage.setCounty(n, {
           h: v == null ? 0.4 : Math.pow(v / maxInc, 2.2) * 8.5,
-          color: v == null ? '#26303c' : colorRamp(RAMP_GOLD, v / maxInc)
+          color: v == null ? '#26303c' : colorRamp(RAMP_GOLD, v / maxInc),
+          emissive: v == null ? '#000000' : colorRamp(RAMP_GOLD_EMIT, v / maxInc)
         });
       }
       hud.setYear(inc?.meta?.year || natY1, 'actual');
