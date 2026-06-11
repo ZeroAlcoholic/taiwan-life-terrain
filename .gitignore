@@ -4,3 +4,4 @@ work/
 data/raw/
 __pycache__/
 *.pyc
+README.dev.md
