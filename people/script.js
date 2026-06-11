@@ -40,6 +40,21 @@ export function buildShow(data, util) {
     return w ? o / w * 100 : null;
   };
 
+  // 「如果這個縣市是 100 個人」:把單一縣市的年齡占比化為 100 人三段(2025 實際)
+  const countyCohortAt = (name, year = natY1) => {
+    const y = cAt(name, 'pct0_14', year), o = cAt(name, 'pct65', year);
+    const yy = Math.round(y ?? 0), oo = Math.round(o ?? 0);
+    return { young: yy, old: oo, work: Math.max(0, 100 - yy - oo), total: cAt(name, 'total', year) };
+  };
+  // 把同一支 100 人隊伍搬到某縣市:重塑人形 + 更新讀數(全程實際資料)
+  const applyCounty = (stage, hud, name) => {
+    const c = countyCohortAt(name);
+    stage.setCohort({ young: c.young, work: c.work, old: c.old });
+    stage.projMode = 0;
+    hud.updateLegendValues([c.young + ' 人', c.work + ' 人', c.old + ' 人']);
+    hud.setSub(`${name}｜100 人中 ${c.old} 位長者、${c.young} 個孩子　·　約 ${fmtWan(c.total)}人(2025 實際)`);
+  };
+
   const sweep = (p, y0, y1, ratio = 0.8) => y0 + (y1 - y0) * Math.min(1, p / ratio);
 
   const legendCohort = (hud) => hud.setLegend('如果臺灣是 100 個人', [
@@ -81,6 +96,8 @@ export function buildShow(data, util) {
 
   // 代表縣市(依 2025 65+)
   const C_TAIPEI = '臺北市', C_CHIAYI = '嘉義縣', C_HSINCHU = '新竹縣', C_HSINCHUCITY = '新竹市';
+  // 預先算好三個代表縣市的「100 人」結構,供字卡精準引用
+  const ccChiayi = countyCohortAt(C_CHIAYI), ccHsin = countyCohortAt(C_HSINCHU), ccTpe = countyCohortAt(C_TAIPEI);
 
   const chapters = [];
 
@@ -155,42 +172,54 @@ export function buildShow(data, util) {
     },
   });
 
-  // ───────── 第三章:縣市差異 ─────────
+  // ───────── 第三章:縣市差異 — 同一支 100 人隊伍,搬到不同縣市 ─────────
+  // 設計:不離開「人」。把全臺那 100 人,逐一換成「如果這個縣市是 100 個人」,
+  // 同樣 100 人、形狀卻不同——玫紅多寡一眼可見;縣市同時在腳下地圖點亮以定位。
+  const CH3_SEGS = [
+    { name: C_CHIAYI, col: C_OLD,   tone: '#e8728c' },  // 老:鄉縣
+    { name: C_HSINCHU, col: C_YOUNG, tone: '#69d6a0' }, // 年輕:科技走廊
+    { name: C_TAIPEI, col: C_OLD,   tone: '#e8728c' },  // 老+富:首都
+  ];
   chapters.push({
-    no: '三', name: '老化的前線', dur: 16,
-    camera: [{ t: 0, pos: [-16, 18, 16], tgt: [-2, 2, 2] }, { t: 1, pos: [12, 16, 14], tgt: [3, 2, -4] }],
+    no: '三', name: '同樣 100 人,各地不同', dur: 16,
+    camera: [{ t: 0, pos: [-15, 15, 17], tgt: [-1, 2.4, 1] }, { t: 1, pos: [12, 14, 15], tgt: [3, 2.4, -3] }],
     enter(ctx) {
       legendCohort(ctx.hud);
+      ctx.stage.showCohort(true);
+      ctx.stage.restoreCohort();
       ctx.stage.resetCounties();
+      ctx.stage.hideAllLabels();
+      this._curCounty = null;
     },
     cues: [
       { at: 0.3, caption: {
-        title: '老化,不是均勻發生的',
-        body: '把人群暫放一旁,看看腳下這座島。<br>有的縣市還年輕、有的已深度高齡—<br>差距,沿著地圖一目了然。',
-      },
-      run(ctx) {
-        // 把最老縣市染玫紅、最年輕縣市染暖綠
-        ctx.stage.setCounty(C_TAIPEI, { color: colHex(C_OLD) });
-        ctx.stage.setCounty(C_CHIAYI, { color: colHex(C_OLD) });
-        ctx.stage.setCounty(C_HSINCHU, { color: colHex(C_YOUNG) });
-        ctx.stage.setCounty(C_HSINCHUCITY, { color: colHex(C_YOUNG) });
-        ctx.stage.setLabel(C_TAIPEI, fmt1(cAt(C_TAIPEI, 'pct65', natY1)) + '% 老', { hero: true });
-        ctx.stage.setLabel(C_CHIAYI, fmt1(cAt(C_CHIAYI, 'pct65', natY1)) + '% 老', { hero: true });
-        ctx.stage.setLabel(C_HSINCHU, fmt1(cAt(C_HSINCHU, 'pct65', natY1)) + '% 老', { hero: true });
-        ctx.stage.countyRipple(C_CHIAYI, C_OLD, 7);
-        ctx.stage.countyRipple(C_HSINCHU, C_YOUNG, 6);
-      } },
-      { at: 8, caption: {
-        title: '最老 vs 最年輕',
-        body: `<b style="color:#e8728c">${C_TAIPEI}</b> 與 <b style="color:#e8728c">${C_CHIAYI}</b>:每 4 人就有 1 位長者—全臺最老。<br><b style="color:#69d6a0">${C_HSINCHU}</b>(科技走廊):全臺最年輕。`,
-        stat: `${C_TAIPEI} 65+ ${fmt1(cAt(C_TAIPEI, 'pct65', natY1))}%　·　${C_CHIAYI} ${fmt1(cAt(C_CHIAYI, 'pct65', natY1))}%　·　${C_HSINCHU} ${fmt1(cAt(C_HSINCHU, 'pct65', natY1))}%(2025)` },
-      run(ctx) { ctx.stage.countyRipple(C_TAIPEI, C_OLD, 6); } },
-      { at: 12.5, caption: {
+        title: '同樣 100 個人,各地卻不同',
+        body: `把同一支 <b>100 人</b>的隊伍,搬到不同縣市。<br>同樣 100 人,長者卻從 <b>${ccHsin.old}</b> 位到 <b>${ccChiayi.old}</b> 位不等。<br>先看高齡鄉縣 <b style="color:#e8728c">${C_CHIAYI}</b>。`,
+        stat: `${C_CHIAYI}｜100 人中 ${ccChiayi.old} 位長者、${ccChiayi.young} 個孩子(2025 實際)` } },
+      { at: 5.7, caption: {
+        title: `最年輕的隊伍:${C_HSINCHU}`,
+        body: `科技走廊的 <b style="color:#69d6a0">${C_HSINCHU}</b>:同樣 100 人,<br>長者只有 <b>${ccHsin.old}</b> 位、孩子多達 <b style="color:#69d6a0">${ccHsin.young}</b> 個。<br>金色青壯仍站滿中段。`,
+        stat: `${C_HSINCHU}｜100 人中 ${ccHsin.old} 位長者、${ccHsin.young} 個孩子(2025 實際)` } },
+      { at: 11, caption: {
+        title: `最老又最富:首都 ${C_TAIPEI}`,
+        body: `<b style="color:#e8728c">${C_TAIPEI}</b>:100 人中 <b>${ccTpe.old}</b> 位長者—<br>與 ${C_CHIAYI} 並列全臺最老,<br>卻是最有錢的隊伍。`,
+        stat: `${C_TAIPEI}｜100 人中 ${ccTpe.old} 位長者(全臺最老,2025 實際)` } },
+      { at: 14.4, caption: {
         title: '差的,只是時間',
-        body: '今天最年輕的縣市,<br>也走在同一條路上—<br>玫紅,終將沿著前線一路漫開。',
-        hint: '點選任一縣市,看它的世代結構' } },
+        body: '今天最年輕的隊伍,<br>也走在同一條路上—<br>玫紅,終將站滿每一個縣市。',
+        hint: '點選任一縣市,看它的「100 人」隊形' } },
     ],
     tick(localT, p, ctx) {
+      const seg = CH3_SEGS[Math.min(CH3_SEGS.length - 1, Math.floor(p * CH3_SEGS.length))];
+      if (seg.name !== this._curCounty) {
+        this._curCounty = seg.name;
+        ctx.stage.resetCounties();
+        ctx.stage.hideAllLabels();
+        ctx.stage.setCounty(seg.name, { color: colHex(seg.col) });
+        ctx.stage.setLabel(seg.name, fmt1(cAt(seg.name, 'pct65', natY1)) + '% 長者', { hero: true });
+        ctx.stage.countyRipple(seg.name, seg.col, 6);
+      }
+      applyCounty(ctx.stage, ctx.hud, seg.name);   // 同一支 100 人,重塑成該縣市結構
       ctx.hud.setYear(natY1, { mode: 'actual', src: SRC_RIS });
     },
   });
@@ -310,7 +339,7 @@ export function buildShow(data, util) {
     <div class="sm-block"><b>圖資</b><br>內政部國土測繪中心 縣市界線。</div>
     <div class="sm-note">本頁「100 個人」之三段人數,直接由官方年齡占比四捨五入而得;>2025 一律採國發會中推估,並以幽藍冷光與「官方推估」徽章明確區分實際與推估。縣市差異採 2025 實際資料。</div>`;
 
-  return { chapters, panelRows, sourcesHTML };
+  return { chapters, panelRows, sourcesHTML, countyCohort: countyCohortAt };
 
   // helper: 顏色數值 → '#rrggbb'
   function colHex(n) { return '#' + n.toString(16).padStart(6, '0'); }

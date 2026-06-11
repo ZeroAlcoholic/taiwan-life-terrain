@@ -154,6 +154,15 @@ async function loadAll() {
     if (focus && show.panelRows) {
       hud.showCountyPanel(focus, show.panelRows(focus, director), mouse.x, mouse.y);
     } else hud.hideCountyPanel();
+    // 點選鎖定縣市:把同一支 100 人隊伍重塑成「如果這個縣市是 100 個人」(2025 實際,蓋過章節)
+    if (pinned && show.countyCohort) {
+      const cc = show.countyCohort(pinned);
+      stage.showCohort(true); stage.restoreCohort();
+      if (stage.hideScratch) stage.hideScratch();
+      stage.setCohort({ young: cc.young, work: cc.work, old: cc.old });
+      stage.projMode = 0;
+      hud.updateLegendValues([cc.young + ' 人', cc.work + ' 人', cc.old + ' 人']);
+    }
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
