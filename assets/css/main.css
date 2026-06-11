@@ -77,10 +77,25 @@ button { font-family:inherit; cursor:pointer; }
 .brand-crest { width:34px; height:34px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center;
   font-family:var(--font-display); font-weight:900; font-size:17px; color:var(--gold); }
 .brand-name { font-family:var(--font-display); font-weight:700; font-size:15px; letter-spacing:.22em; color:var(--paper); }
-.hud-chapter { display:flex; align-items:center; gap:14px; }
+.hud-chapter { display:flex; flex-direction:column; align-items:center; gap:5px; }
+.hud-chapter-main { display:flex; align-items:center; gap:14px; }
 .chapter-no { font-family:var(--font-display); font-weight:900; font-size:14px; color:var(--ink);
   background:var(--gold); padding:4px 10px; letter-spacing:.2em; }
 .chapter-name { font-family:var(--font-display); font-weight:700; font-size:17px; letter-spacing:.3em; color:var(--gold-hi); }
+
+/* 讀法鍵:此刻高度/顏色各代表什麼,常駐顯示 */
+.encoding-key { display:flex; gap:18px; font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; color:var(--paper-dim); }
+.encoding-key .ek { display:flex; align-items:center; gap:6px; padding:1px 4px; border-radius:2px; }
+.encoding-key .ek b { color:var(--paper); font-weight:600; letter-spacing:.06em; }
+.encoding-key .ek-dot { width:9px; height:9px; border:1px solid currentColor; background:currentColor; flex:0 0 auto; }
+.encoding-key .ek-h .ek-dot { color:#6fa8c0; }   /* 高度=人口(冷藍)→錢時轉金 */
+.encoding-key .ek-c .ek-dot { color:#c9a227; }
+.encoding-key .ek.flash { animation:ek-flash 1.4s ease-out; }
+@keyframes ek-flash {
+  0%   { background:rgba(240,216,120,.5); box-shadow:0 0 0 rgba(240,216,120,.6); }
+  18%  { background:rgba(240,216,120,.32); box-shadow:0 0 16px rgba(240,216,120,.55); }
+  100% { background:transparent; box-shadow:0 0 0 rgba(240,216,120,0); }
+}
 .hud-controls { display:flex; gap:8px; }
 .ctrl { width:38px; height:38px; background:rgba(13,17,23,.7); border:1px solid #3a4148; color:var(--paper); font-size:15px;
   transition:all .25s; }
@@ -119,6 +134,22 @@ button { font-family:inherit; cursor:pointer; }
 #shockwave { position:fixed; inset:0; pointer-events:none; z-index:4; opacity:0; background:radial-gradient(ellipse at 50% 45%, rgba(217,51,63,.22), transparent 65%); }
 #shockwave.go { animation:shock .9s ease-out; }
 @keyframes shock { 0% { opacity:0 } 18% { opacity:1 } 100% { opacity:0 } }
+
+/* 編碼轉場「光掃」:意義改變時,一道有色光浪掃過全圖(高度=錢=金、推演=紅) */
+#mode-wash { position:fixed; inset:0; pointer-events:none; z-index:6; opacity:0;
+  --wash:#f0d878; --wash-peak:.34;
+  background:linear-gradient(100deg, transparent 30%, var(--wash) 50%, transparent 70%);
+  background-size:280% 100%; background-position:130% 0; mix-blend-mode:screen; }
+#mode-wash.go { animation:wash-sweep 1s ease-out; }
+#mode-wash.go-strong { --wash-peak:.7; animation:wash-sweep 1.25s ease-out; }
+#mode-wash.go-strong::after { content:""; position:absolute; inset:0; background:radial-gradient(ellipse 70% 60% at 50% 46%, var(--wash), transparent 70%);
+  opacity:0; animation:wash-bloom 1.25s ease-out; }
+@keyframes wash-sweep {
+  0%   { opacity:0; background-position:130% 0; }
+  22%  { opacity:var(--wash-peak); }
+  100% { opacity:0; background-position:-70% 0; }
+}
+@keyframes wash-bloom { 0%{opacity:0} 24%{opacity:.4} 100%{opacity:0} }
 
 /* 字卡 */
 #caption-box { left:28px; top:50%; transform:translateY(-50%); width:min(360px,30vw);
@@ -252,6 +283,8 @@ button { font-family:inherit; cursor:pointer; }
   .brand-crest { width:28px; height:28px; font-size:14px; }
   .chapter-no { font-size:12px; padding:3px 7px; }
   .chapter-name { font-size:12px; letter-spacing:.12em; }
+  .encoding-key { gap:9px; font-size:8.5px; letter-spacing:.03em; }
+  .encoding-key .ek-dot { width:7px; height:7px; }
   .hud-controls { gap:5px; }
   .ctrl { width:32px; height:32px; font-size:13px; }
 

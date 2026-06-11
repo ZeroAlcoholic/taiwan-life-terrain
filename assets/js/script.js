@@ -142,6 +142,7 @@ export function buildShow(data, util) {
       setLegendPop(hud);
       hud.setYear(natY1, 'actual');
       hud.setSource(SRC_RIS);
+      hud.setEncoding({ hLabel: '人口規模', hKind: 'pop', cLabel: '人口規模', cColor: '#c9a227' });
     },
     cues: [
       { at: 0.4, run: () => sfx.chime() },
@@ -178,7 +179,10 @@ export function buildShow(data, util) {
       { t: 0.5, pos: [-32, 30, 30], tgt: [-2, 0, -2] },
       { t: 1, pos: [14, 30, -40], tgt: [4, 1, -13] },
     ],
-    enter({ hud }) { setLegendPop(hud); hud.setSource(SRC_RIS); sfx.chime(); },
+    enter({ hud }) {
+      setLegendPop(hud); hud.setSource(SRC_RIS); sfx.chime();
+      hud.setEncoding({ hLabel: '人口規模', hKind: 'pop', cLabel: '人口規模', cColor: '#c9a227' });
+    },
     cues: [
       {
         at: 0.3, caption: {
@@ -232,7 +236,12 @@ export function buildShow(data, util) {
       { t: 0.84, pos: [9, 31, -3], tgt: [6.4, 2, -15] },   // 短暫定格首都
       { t: 1, pos: [6, 38, 42], tgt: [0, 0, -2] },          // 拉回全島
     ],
-    enter({ hud }) { setLegendAge(hud); hud.setSource(SRC_RIS); sfx.chime(); },
+    enter({ hud }) {
+      setLegendAge(hud); hud.setSource(SRC_RIS); sfx.chime();
+      // 顏色意義轉場:人口 → 高齡,以紅色光浪掃過全圖
+      hud.setEncoding({ hLabel: '人口規模', hKind: 'pop', cLabel: '65歲以上', cColor: '#d9333f' });
+      hud.wash('#d9333f', false);
+    },
     cues: [
       {
         at: 0.3, caption: {
@@ -287,6 +296,9 @@ export function buildShow(data, util) {
       hud.setLegend('平均每戶人數', RAMP_HOME, ['2.2 人', '', '', '3 人+']);
       hud.setSource(SRC_DGBAS);
       sfx.chime();
+      // 顏色意義轉場:高齡 → 戶量
+      hud.setEncoding({ hLabel: '人口規模', hKind: 'pop', cLabel: '每戶人數', cColor: '#c9a227' });
+      hud.wash('#c9a227', false);
     },
     cues: [
       {
@@ -364,6 +376,9 @@ export function buildShow(data, util) {
       hud.setLegend('平均每戶可支配所得(高度)', RAMP_GOLD, ['低', '', '', '高']);
       hud.setSource(`${SRC_DGBAS}・${SRC_LIA}`);
       sfx.chime();
+      // 高度意義翻轉:人口 → 錢。最劇烈的轉場:金色強光浪 + 金芒(於 0.3s cue)
+      hud.setEncoding({ hLabel: '可支配所得', hKind: 'money', cLabel: '可支配所得', cColor: '#f0d878' });
+      hud.wash('#f0d878', true);
     },
     cues: [
       {
@@ -372,9 +387,8 @@ export function buildShow(data, util) {
           body: `<em>高度=每戶可支配所得</em>。山瞬間搬家——<strong>臺北、新竹</strong>拔地而起,剛才最紅的高齡縣塌成谷地。`,
           stat: incTopStat()
         },
-        // 編碼轉折:高度由「人口」改為「所得」,以衝擊紅光+金色脈衝點出地圖重塑
-        run({ stage, hud }) {
-          hud.shock();
+        // 高度重塑:金色脈衝點出拔地而起的財富高峰(全圖金光浪已於 enter 觸發)
+        run({ stage }) {
           ['臺北市', '新竹市', '新竹縣'].forEach(n => stage.pulse(n, 0xf0d878, 6));
           sfx.thud();
         }
@@ -444,7 +458,12 @@ export function buildShow(data, util) {
       { t: 0.8, pos: [-22, 38, -30], tgt: [-2, 0, -2] },
       { t: 1, pos: [4, 52, 50], tgt: [0, 0, -3] },
     ],
-    enter({ hud }) { setLegendAge(hud); hud.setSource(SRC_NDC); sfx.chime(); },
+    enter({ hud }) {
+      setLegendAge(hud); hud.setSource(SRC_NDC); sfx.chime();
+      // 高度由「錢」翻回「人口」、顏色回到高齡,並跨入推演:紅色強光浪宣告越界
+      hud.setEncoding({ hLabel: '人口規模', hKind: 'pop', cLabel: '65歲以上', cColor: '#d9333f' });
+      hud.wash('#d9333f', true);
+    },
     cues: [
       {
         at: 0.4, caption: {
@@ -513,7 +532,10 @@ export function buildShow(data, util) {
       { t: 0.6, pos: [18, 36, 42], tgt: [0, 0, -3] },
       { t: 1, pos: [8, 60, 60], tgt: [0, 0, -3] },
     ],
-    enter({ hud }) { setLegendAge(hud); hud.setSource(`${SRC_RIS}・${SRC_LIA}`); sfx.chime(); },
+    enter({ hud }) {
+      setLegendAge(hud); hud.setSource(`${SRC_RIS}・${SRC_LIA}`); sfx.chime();
+      hud.setEncoding({ hLabel: '人口規模', hKind: 'pop', cLabel: '65歲以上', cColor: '#d9333f' });
+    },
     cues: [
       {
         at: 0.5, caption: {
