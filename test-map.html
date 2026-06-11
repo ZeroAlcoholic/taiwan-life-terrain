@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><title>map test</title>
+<style>html,body{margin:0;height:100%;overflow:hidden;background:#07090d}#stage{width:100%;height:100%}</style>
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.js", "three/addons/controls/OrbitControls.js": "./vendor/OrbitControls.js" } }</script>
+</head><body>
+<canvas id="stage"></canvas>
+<script type="module">
+import { Stage } from './assets/js/scene.js';
+const geo = await (await fetch('data/counties.geojson')).json();
+const cen = await (await fetch('data/county-centroids.json')).json();
+const stage = new Stage(document.getElementById('stage'));
+stage.buildMap(geo, cen);
+let i = 0;
+for (const name of stage.counties.keys()) {
+  stage.setCounty(name, { h: 0.5 + (i % 7), color: ['#31506b','#4aa3a2','#c9a227','#d9333f'][i % 4] });
+  i++;
+}
+stage.pulse('臺中市', 0xd9333f, 7);
+stage.beacon('臺北市', 0xc9a227, 16);
+let last = performance.now();
+(function loop(now){ const dt = Math.min(0.05,(now-last)/1000); last = now; stage.update(dt); requestAnimationFrame(loop); })(performance.now());
+window.stage = stage;
+</script>
+</body></html>

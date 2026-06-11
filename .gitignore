@@ -1,0 +1,6 @@
+# 原始官方檔案留存(體積大,部署不需要;data/*.json 與 data/sources/ 要保留上傳)
+raw/
+work/
+data/raw/
+__pycache__/
+*.pyc

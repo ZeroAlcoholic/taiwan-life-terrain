@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>臺灣壽險市場地形劇場|人口・家庭・所得の戰情推演</title>
+<meta name="description" content="以官方公開資料推演臺灣人口結構、家庭結構與所得地形如何重塑壽險市場 — 3D 戰情劇場式資料敘事">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='29' fill='%2307090d' stroke='%23c9a227' stroke-width='3'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='%23c9a227' font-family='serif' font-weight='900'%3E壽%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-webfont/style.css">
+<link rel="stylesheet" href="assets/css/main.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/controls/OrbitControls.js": "./vendor/OrbitControls.js" } }
+</script>
+</head>
+<body>
+
+<!-- ══════════ 3D 舞台 ══════════ -->
+<canvas id="stage"></canvas>
+<div id="vignette"></div>
+<div id="shockwave"></div>
+<div id="grain"></div>
+
+<!-- ══════════ 載入畫面 ══════════ -->
+<div id="loader">
+  <div class="loader-crest">壽</div>
+  <h1 class="loader-title">臺灣壽險市場<br>地形劇場</h1>
+  <p class="loader-sub">LIFE INSURANCE TERRAIN THEATER · TAIWAN</p>
+  <ul id="load-status"></ul>
+  <button id="btn-start" disabled>整備中⋯</button>
+  <p class="loader-hint">建議使用桌面瀏覽器・全長 90 秒・可隨時互動探索</p>
+</div>
+
+<!-- ══════════ 序幕標題卡 ══════════ -->
+<div id="titlecard" class="hidden">
+  <div class="tc-rule"></div>
+  <p class="tc-kicker">官方資料 × 戰情推演</p>
+  <h1 class="tc-title">臺灣壽險市場地形劇場</h1>
+  <p class="tc-sub">當人口之峰崩落、家屋變小、財富山脈傾斜——<br>保障的戰場,正在移動。</p>
+  <div class="tc-rule"></div>
+</div>
+
+<!-- ══════════ HUD ══════════ -->
+<header id="hud-top" class="hud hidden">
+  <div class="hud-brand">
+    <span class="brand-crest">壽</span>
+    <span class="brand-name">臺灣壽險市場地形劇場</span>
+  </div>
+  <div class="hud-chapter">
+    <span id="chapter-no" class="chapter-no">序</span>
+    <span id="chapter-name" class="chapter-name">開戰前夜</span>
+  </div>
+  <div class="hud-controls">
+    <button id="btn-play" class="ctrl" title="播放/暫停(空白鍵)">⏸</button>
+    <button id="btn-speed" class="ctrl" title="播放倍速">1×</button>
+    <button id="btn-replay" class="ctrl" title="重新播放">↺</button>
+    <button id="btn-cam" class="ctrl active" title="自動運鏡開關">🎥</button>
+    <button id="btn-sound" class="ctrl" title="音效開關">♪</button>
+  </div>
+</header>
+
+<!-- 年份大字 -->
+<div id="year-display" class="hud hidden">
+  <span id="year-num">2025</span>
+  <span id="year-era">民國 114 年</span>
+  <span id="data-badge" class="badge badge-actual">實際資料</span>
+  <span id="year-src">內政部戶政司</span>
+  <!-- 三段年齡結構即時讀數 -->
+  <div id="age-chips">
+    <div class="chip chip-young"><span class="chip-k">0–14</span><b id="chip-young">—</b></div>
+    <div class="chip chip-work"><span class="chip-k">15–64</span><b id="chip-work">—</b></div>
+    <div class="chip chip-old"><span class="chip-k">65+</span><b id="chip-old">—</b></div>
+  </div>
+</div>
+
+<!-- 左側:敘事字卡 -->
+<aside id="caption-box" class="hud hidden">
+  <div class="caption-chapter" id="caption-chapter">第一章</div>
+  <h2 class="caption-title" id="caption-title"></h2>
+  <p class="caption-body" id="caption-body"></p>
+  <div class="caption-stat" id="caption-stat"></div>
+</aside>
+
+<!-- 右側:圖例 + 迷你圖 -->
+<aside id="legend-box" class="hud hidden">
+  <div class="legend-title" id="legend-title">人口規模</div>
+  <div class="legend-scale" id="legend-scale"></div>
+  <div class="legend-labels" id="legend-labels"></div>
+  <canvas id="minichart" width="300" height="132"></canvas>
+  <div class="minichart-caption" id="minichart-caption"></div>
+</aside>
+
+<!-- 戰報事件卡 -->
+<div id="event-card" class="hidden">
+  <div class="ec-flag">戰報</div>
+  <div class="ec-year" id="ec-year"></div>
+  <div class="ec-text" id="ec-text"></div>
+</div>
+
+<!-- 縣市情報面板 (hover/點擊) -->
+<div id="county-panel" class="hidden">
+  <h3 id="cp-name"></h3>
+  <div id="cp-rows"></div>
+</div>
+
+<!-- 底部:時間軸 -->
+<footer id="hud-bottom" class="hud hidden">
+  <div id="chapter-pips"></div>
+  <div id="timeline">
+    <div id="tl-track"><div id="tl-fill"></div><div id="tl-cursor"></div></div>
+    <div id="tl-ticks"></div>
+  </div>
+  <div id="hud-foot-note">
+    <span class="badge badge-actual">實際</span><span class="badge badge-proj">官方推估</span><span class="badge badge-sim">情境推演</span>
+    <span id="foot-src">資料:內政部戶政司・國發會人口推估・主計總處家庭收支調查・壽險公會/保發中心</span>
+    <button id="btn-sources" class="link-btn">資料來源</button>
+  </div>
+</footer>
+
+<!-- 資料來源面板 -->
+<div id="sources-modal" class="hidden">
+  <div class="sm-inner">
+    <button id="sm-close">✕</button>
+    <h2>資料來源</h2>
+    <div id="sm-body"></div>
+  </div>
+</div>
+
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
